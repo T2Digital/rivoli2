@@ -1,0 +1,297 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مركز ريفولي لطب الأسنان - القاهرة</title>
+  <meta name="description" content="مركز ريفولي لطب الأسنان في وسط البلد، القاهرة. خدمات تنظيف، تبييض، زراعة أسنان، والمزيد. احجز موعدك الآن!">
+  <meta name="keywords" content="طب أسنان القاهرة, مركز ريفولي, تنظيف الأسنان, تبييض الأسنان, زراعة أسنان, وسط البلد">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="مركز ريفولي">
+  <meta property="og:title" content="مركز ريفولي لطب الأسنان">
+  <meta property="og:description" content="خدمات طب أسنان احترافية في قلب القاهرة. احجز الآن!">
+  <meta property="og:image" content="/public/logo.png">
+  <meta property="og:url" content="https://rivoli-dental.com">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://rivoli-dental.com">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="/public/icon-192.png">
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://unpkg.com/sweetalert2@11"></script>
+  <script src="https://unpkg.com/mapbox-gl@2.8.2/dist/mapbox-gl.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/mapbox-gl@2.8.2/dist/mapbox-gl.css">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker Registered'))
+        .catch(err => console.error('Service Worker Error:', err));
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Dentist",
+      "name": "مركز ريفولي لطب الأسنان",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "27 شارع 26 يوليو، أعلى سينما ريفولي، أمام دار القضاء العالي",
+        "addressLocality": "وسط البلد",
+        "addressRegion": "القاهرة",
+        "addressCountry": "EG"
+      },
+      "telephone": "+201030956097",
+      "url": "https://rivoli-dental.com",
+      "openingHours": "Mo-Su 16:00-23:00"
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Review",
+      "itemReviewed": {
+        "@type": "Dentist",
+        "name": "مركز ريفولي لطب الأسنان"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "أحمد محمد"
+      },
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 5,
+        "bestRating": 5
+      },
+      "reviewBody": "خدمة ممتازة! ابتسامتي أصبحت رائعة."
+    }
+  </script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <!-- Loader -->
+  <div class="loader" id="loader"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <nav>
+        <img src="public/logo.png" alt="شعار مركز ريفولي لطب الأسنان" class="logo">
+        <ul class="nav-menu">
+          <li><a href="#home">الرئيسية</a></li>
+          <li><a href="#services">الخدمات</a></li>
+          <li><a href="#gallery">معرض الصور</a></li>
+          <li><a href="#booking">الحجز</a></li>
+          <li><a href="#about">من نحن</a></li>
+          <li><a href="#testimonials">آراء العملاء</a></li>
+          <li><a href="#contact">اتصل بنا</a></li>
+        </ul>
+        <button id="theme-toggle" aria-label="تبديل الوضع الليلي"><i class="fas fa-moon"></i></button>
+        <div class="hamburger" aria-label="قائمة التنقل">
+          <span></span><span></span><span></span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero" data-aos="fade-up">
+    <video autoplay muted loop class="hero-video">
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    </video>
+    <div class="hero-content">
+      <h1>ابتسامتك المثالية مع ريفولي!</h1>
+      <p>خدمات طب أسنان متقدمة في وسط البلد، القاهرة</p>
+      <a href="#booking" class="neon-button">احجز موعدك الآن</a>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section id="services" class="section">
+    <div class="container">
+      <h2 data-aos="fade-up">خدماتنا</h2>
+      <div class="services-grid" id="services-container"></div>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section id="gallery" class="section">
+    <div class="container">
+      <h2 data-aos="fade-up">معرض الصور</h2>
+      <div class="gallery-slider swiper-container">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide"><img src="https://via.placeholder.com/600x400?text=صورة+1" alt="معرض صور مركز ريفولي" loading="lazy"></div>
+          <div class="swiper-slide"><img src="https://via.placeholder.com/600x400?text=صورة+2" alt="معرض صور مركز ريفولي" loading="lazy"></div>
+          <div class="swiper-slide"><img src="https://via.placeholder.com/600x400?text=صورة+3" alt="معرض صور مركز ريفولي" loading="lazy"></div>
+        </div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Booking Section -->
+  <section id="booking" class="section">
+    <div class="container">
+      <h2 data-aos="fade-up">احجز موعدك</h2>
+      <form id="booking-form">
+        <label for="patient-name">الاسم:</label>
+        <input type="text" id="patient-name" required aria-required="true">
+        <label for="patient-phone">رقم الهاتف:</label>
+        <input type="tel" id="patient-phone" required aria-required="true">
+        <label for="service-select">الخدمة:</label>
+        <select id="service-select" required aria-required="true">
+          <option value="">اختر الخدمة</option>
+        </select>
+        <table class="schedule-table">
+          <thead>
+            <tr>
+              <th>الساعة</th>
+              <th>الأحد</th><th>الإثنين</th><th>الثلاثاء</th><th>الأربعاء</th><th>الخميس</th><th>الجمعة</th><th>السبت</th>
+            </tr>
+          </thead>
+          <tbody id="schedule-body"></tbody>
+        </table>
+        <button type="button" id="confirm-booking" class="neon-button" disabled>تأكيد الحجز</button>
+        <button type="button" id="clear-selection" class="neon-button">إلغاء الاختيار</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="section">
+    <div class="container">
+      <h2 data-aos="fade-up">من نحن</h2>
+      <div class="about-content">
+        <div class="about-text">
+          <p>مركز ريفولي لطب الأسنان هو وجهتكم للعناية بالأسنان في قلب القاهرة. نقدم خدمات متميزة باستخدام أحدث التقنيات مع فريق من الأطباء المحترفين.</p>
+          <p>العنوان: 27 شارع 26 يوليو - أعلى سينما ريفولي - أمام دار القضاء العالي - وسط البلد - القاهرة</p>
+        </div>
+        <img src="https://via.placeholder.com/450x300?text=صورة+عن+المركز" alt="صورة مركز ريفولي لطب الأسنان" class="about-image" data-aos="zoom-in" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section id="testimonials" class="section">
+    <div class="container">
+      <h2 data-aos="fade-up">آراء العملاء</h2>
+      <div class="testimonials-slider swiper-container">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide" data-aos="fade-up">
+            <div class="testimonial-card">
+              <img src="public/avatars/client1.jpg" alt="صورة العميل أحمد محمد" class="testimonial-avatar" loading="lazy">
+              <p>"خدمة ممتازة! ابتسامتي أصبحت رائعة بفضل فريق ريفولي."</p>
+              <h3>أحمد محمد</h3>
+              <span>2025-08-20</span>
+            </div>
+          </div>
+          <div class="swiper-slide" data-aos="fade-up">
+            <div class="testimonial-card">
+              <img src="public/avatars/client2.jpg" alt="صورة العميلة سارة علي" class="testimonial-avatar" loading="lazy">
+              <p>"تجربة مريحة وفريق محترف جدًا. أنصح بزيارة المركز!"</p>
+              <h3>سارة علي</h3>
+              <span>2025-08-15</span>
+            </div>
+          </div>
+          <div class="swiper-slide" data-aos="fade-up">
+            <div class="testimonial-card">
+              <img src="public/avatars/client3.jpg" alt="صورة العميل محمود حسن" class="testimonial-avatar" loading="lazy">
+              <p>"أفضل مركز أسنان في القاهرة. النتائج مذهلة!"</p>
+              <h3>محمود حسن</h3>
+              <span>2025-08-10</span>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="section">
+    <div class="container">
+      <h2 data-aos="fade-up">اتصل بنا</h2>
+      <div class="contact-info">
+        <p>العنوان: 27 شارع 26 يوليو - أعلى سينما ريفولي - أمام دار القضاء العالي - وسط البلد - القاهرة</p>
+        <p>رقم الهاتف: <a href="tel:+201030956097">+201030956097</a></p>
+        <p>البريد الإلكتروني: <a href="mailto:info@rivoli-dental.com">info@rivoli-dental.com</a></p>
+      </div>
+      <div class="map-container" id="map"></div>
+      <div class="map-controls">
+        <button id="toggle-rotation" class="neon-button map-control">إيقاف الدوران</button>
+        <button id="go-to-center" class="neon-button map-control">الذهاب إلى المركز</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>حقوق الطبع والنشر © 2025 مركز ريفولي لطب الأسنان. جميع الحقوق محفوظة.</p>
+      <div class="social-links">
+        <a href="#" aria-label="فيسبوك"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="تويتر"><i class="fab fa-twitter"></i></a>
+        <a href="#" aria-label="إنستغرام"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="لينكدإن"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button id="back-to-top" class="neon-button">عودة إلى الأعلى</button>
+
+  <!-- Chatbot -->
+  <div class="chatbot" id="chatbot-toggle" aria-label="فتح الدردشة">💬</div>
+  <div class="chatbot-window" id="chatbot-window">
+    <input type="text" id="chatbot-input" placeholder="اكتب سؤالك..." aria-label="إدخال سؤال الدردشة">
+    <button id="chatbot-send" class="neon-button">إرسال</button>
+    <div id="chatbot-response"></div>
+  </div>
+</body>
+</html>
